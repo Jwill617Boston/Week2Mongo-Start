@@ -1,27 +1,44 @@
 const express = require("express");
+const partner = require("../models/partner");
+
 const partnerRouter = express.Router();
 
 partnerRouter
    .route("/")
-   .all((req, res, next) => {
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "text/plain");
-      next();
+   .get((req, res, next) => {
+      partner
+         .find()
+         .then((partner) => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(partner);
+         })
+         .catch((err) => next(err));
    })
-   .get((req, res) => {
-      res.end("This was send from GET command for partner");
-   })
-   .post((req, res) => {
-      res.end(
-         `Will add the partner: ${req.body.name} with description: ${req.body.description}`
-      );
+   .post((req, res, next) => {
+      partner
+         .create(req.body)
+         .then((partner) => {
+            console.log("partner Created ", partner);
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(partner);
+         })
+         .catch((err) => next(err));
    })
    .put((req, res) => {
       res.statusCode = 403;
-      res.end("PUT operation not supported on /partners");
+      res.end("PUT operation not supported on /partner");
    })
-   .delete((req, res) => {
-      res.end("Deleting all partners");
+   .delete((req, res, next) => {
+      partner
+         .deleteMany()
+         .then((response) => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(response);
+         })
+         .catch((err) => next(err));
    });
 
 partnerRouter
