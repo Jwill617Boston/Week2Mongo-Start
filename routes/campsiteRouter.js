@@ -3,18 +3,27 @@ const Campsite = require("../models/campsite");
 
 const campsiteRouter = express.Router();
 
+// res.statuscode send status code 
+// res.header sends header object
+// res.json sends info to client
+
+// Campsite is the model with schema for data 
+
 campsiteRouter
    .route("/")
    .get((req, res, next) => {
+      // get all data using model
       Campsite.find()
          .then((campsites) => {
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.json(campsites);
          })
+         // catch err; if no err, next function
          .catch((err) => next(err));
    })
    .post((req, res, next) => {
+      // new document and save; mongoose will check data to schema; returns promise
       Campsite.create(req.body)
          .then((campsite) => {
             console.log("Campsite Created ", campsite);
@@ -29,6 +38,7 @@ campsiteRouter
       res.end("PUT operation not supported on /campsites");
    })
    .delete((req, res, next) => {
+      // delete all documents, response to how many was deleted
       Campsite.deleteMany()
          .then((response) => {
             res.statusCode = 200;
