@@ -42,68 +42,42 @@ partnerRouter
    .route("/:partnerId")
    .get((req, res, next) => {
       Partner.findById(req.params.partnerId)
-         .then((Partner) => {
-            if (Partner) {
-               res.statusCode = 200;
-               res.setHeader("Content-Type", "application/json");
-               res.json(Partner.comments);
-            } else {
-               err = new Error(`Partner ${req.params.partnerId} not found`);
-               err.status = 404;
-               return next(err);
-            }
+         .then((partner) => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(partner);
          })
          .catch((err) => next(err));
    })
-   .post((req, res, next) => {
-      Partner.findById(req.params.partnerId)
-         .then((Partner) => {
-            if (Partner) {
-               Partner.comments.push(req.body);
-               Partner.save()
-                  .then((Partner) => {
-                     res.statusCode = 200;
-                     res.setHeader("Content-Type", "application/json");
-                     res.json(Partner);
-                  })
-                  .catch((err) => next(err));
-            } else {
-               err = new Error(`Partner ${req.params.partnerId} not found`);
-               err.status = 404;
-               return next(err);
-            }
-         })
-         .catch((err) => next(err));
-   })
-   .put((req, res) => {
+   .post((req, res) => {
       res.statusCode = 403;
       res.end(
-         `PUT operation not supported on /partners/${req.params.partnerId}/comments`
+         `POST operation not supported on /campsites/${req.params.partnerId}`
       );
    })
+   .put((req, res, next) => {
+      Partner.findByIdAndUpdate(
+         req.params.partnerId,
+         {
+            $set: req.body,
+         },
+         { new: true }
+      )
+         .then((partner) => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(partner);
+         })
+         .catch((err) => next(err));
+   })
    .delete((req, res, next) => {
-      Partner.findById(req.params.partnerId)
-         .then((Partner) => {
-            if (Partner) {
-               for (let i = Partner.comments.length - 1; i >= 0; i--) {
-                  Partner.comments.id(Partner.comments[i]._id).remove();
-               }
-               Partner.save()
-                  .then((Partner) => {
-                     res.statusCode = 200;
-                     res.setHeader("Content-Type", "application/json");
-                     res.json(Partner);
-                  })
-                  .catch((err) => next(err));
-            } else {
-               err = new Error(`Partner ${req.params.partnerId} not found`);
-               err.status = 404;
-               return next(err);
-            }
+      Partner.findByIdAndDelete(req.params.partnerId)
+         .then((response) => {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(response);
          })
          .catch((err) => next(err));
    });
-
-
 
 module.exports = partnerRouter;
