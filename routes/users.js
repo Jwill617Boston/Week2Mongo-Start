@@ -10,6 +10,24 @@ router.get("/", function (req, res, next) {
    res.send("respond with a resource");
 });
 
+router
+   .route("/")
+   .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+      User.find()
+         .then((users) => {
+            if (users) {
+               res.statusCode = 200;
+               res.setHeader("Content-Type", "application/json");
+               res.json(users);
+            } else {
+               err = new Error(`User not found`);
+               err.status = 404;
+               return next(err);
+            }
+         })
+         .catch((err) => next(err));
+   });
+
 // Middleware function arg= (req, res, next)
 router.post("/signup", (req, res) => {
    User.register(
