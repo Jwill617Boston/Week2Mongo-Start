@@ -84,7 +84,15 @@ favoriteRouter
       cors.corsWithOptions,
       authenticate.verifyUser,
       authenticate.verifyAdmin,
-      (req, res, next) => {}
+      (req, res, next) => {
+         Favorite.findByIdAndDelete({ user: req.user._id })
+            .then((response) => {
+               res.statusCode = 200;
+               res.setHeader("Content-Type", "application/json");
+               res.json(response);
+            })
+            .catch((err) => next(err));
+      }
    );
 
 module.exports = favoriteRouter;
