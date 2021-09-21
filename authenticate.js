@@ -40,11 +40,8 @@ exports.jwtPassport = passport.use(
    })
 );
 
-<<<<<<< HEAD
 
 
-exports.verifyUser = passport.authenticate("jwt", { session: false });
-=======
 exports.verifyUser = passport.authenticate("jwt", { session: false });
 
 exports.verifyAdmin = (req, res, next) => {
@@ -89,4 +86,3 @@ exports.facebookPassport = passport.use(
       }
    )
 );
->>>>>>> 9d67ac71f1cdcc992fef0b9ee813ad0e9055fcc5
