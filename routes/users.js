@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/user");
 const passport = require("passport");
 const authenticate = require("../authenticate");
+const cors = require("./cors");
 
 const router = express.Router();
 
@@ -9,6 +10,25 @@ const router = express.Router();
 router.get("/", function (req, res, next) {
    res.send("respond with a resource");
 });
+
+router
+   .route("/")
+   .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+   .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+      User.find()
+         .then((users) => {
+            if (users) {
+               res.statusCode = 200;
+               res.setHeader("Content-Type", "application/json");
+               res.json(users);
+            } else {
+               err = new Error(`User not found`);
+               err.status = 404;
+               return next(err);
+            }
+         })
+         .catch((err) => next(err));
+   });
 
 // Middleware function arg= (req, res, next)
 router.post("/signup", (req, res) => {
@@ -71,5 +91,22 @@ router.get('/logout', (req, res, next) => {
     return next(err);
   }
 });
+
+router.get(
+   "/facebook/token",
+   passport.authenticate("facebook-token"),
+   (req, res) => {
+      if (req.user) {
+         const token = authenticate.getToken({ _id: req.user._id });
+         res.statusCode = 200;
+         res.setHeader("Content-Type", "application/json");
+         res.json({
+            success: true,
+            token: token,
+            status: "You are successfully logged in!",
+         });
+      }
+   }
+);
 
 module.exports = router;
